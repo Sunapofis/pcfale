@@ -1,0 +1,28 @@
+export const DashboardHTML = `
+<div class="dashboard-container">
+  <h1 class="h3 mb-4">Dashboard</h1>
+
+  <div *ngIf="loading" class="text-center p-5">
+    <div class="spinner-border text-primary" role="status"></div>
+    <p class="mt-3">Carregando dados...</p>
+  </div>
+
+  <div *ngIf="!loading" class="row">
+    <div class="col-md-6 mb-3">
+      <div class="card bg-primary text-white">
+        <div class="card-body">
+          <h5>Total Produtos</h5>
+          <h2>{{ totalProducts }}</h2>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 mb-3">
+      <div class="card bg-success text-white">
+        <div class="card-body">
+          <h5>Total Categorias</h5>
+          <h2>{{ totalCategories }}</h2>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

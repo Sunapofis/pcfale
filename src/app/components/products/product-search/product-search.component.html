@@ -1,0 +1,160 @@
+export const ProductSearchComponentHTML = `
+<div class="product-search-container">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3">Pesquisa Avançada de Produtos</h1>
+    <a routerLink="/products" class="btn btn-outline-secondary">
+      <i class="fas fa-arrow-left"></i>
+      Voltar à Lista
+    </a>
+  </div>
+
+  <!-- Search Form -->
+  <div class="card mb-4">
+    <div class="card-header">
+      <h5 class="mb-0">
+        <i class="fas fa-search"></i>
+        Critérios de Pesquisa
+      </h5>
+    </div>
+    <div class="card-body">
+      <form [formGroup]="searchForm" (ngSubmit)="onSearch()">
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="searchTerm" class="form-label">Termo de Pesquisa</label>
+            <input
+              type="text"
+              id="searchTerm"
+              class="form-control"
+              formControlName="searchTerm"
+              placeholder="Nome, código ou descrição do produto...">
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <label for="categoryId" class="form-label">Categoria</label>
+            <select
+              id="categoryId"
+              class="form-select"
+              formControlName="categoryId">
+              <option value="">Todas as categorias</option>
+              <option *ngFor="let category of categories" [value]="category.id">
+                {{ category.name }}
+              </option>
+            </select>
+          </div>
+
+          <div class="col-md-4 mb-3">
+            <label for="minPrice" class="form-label">Preço Mínimo (€)</label>
+            <input
+              type="number"
+              id="minPrice"
+              class="form-control"
+              formControlName="minPrice"
+              step="0.01"
+              min="0"
+              placeholder="0.00">
+          </div>
+
+          <div class="col-md-4 mb-3">
+            <label for="maxPrice" class="form-label">Preço Máximo (€)</label>
+            <input
+              type="number"
+              id="maxPrice"
+              class="form-control"
+              formControlName="maxPrice"
+              step="0.01"
+              min="0"
+              placeholder="1000.00">
+          </div>
+
+          <div class="col-md-4 mb-3 d-flex align-items-end">
+            <div class="form-check">
+              <input
+                type="checkbox"
+                id="inStock"
+                class="form-check-input"
+                formControlName="inStock">
+              <label class="form-check-label" for="inStock">
+                Apenas com stock disponível
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-flex gap-2">
+          <button type="submit" class="btn btn-primary" [disabled]="loading">
+            <i class="fas fa-search" *ngIf="!loading"></i>
+            <span class="spinner-border spinner-border-sm" *ngIf="loading"></span>
+            {{ loading ? 'Pesquisando...' : 'Pesquisar' }}
+          </button>
+          <button type="button" class="btn btn-secondary" (click)="clearSearch()">
+            <i class="fas fa-times"></i>
+            Limpar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Search Results -->
+  <div class="card" *ngIf="searchPerformed">
+    <div class="card-header">
+      <h5 class="mb-0">
+        <i class="fas fa-list"></i>
+        Resultados da Pesquisa ({{ products.length }})
+      </h5>
+    </div>
+    <div class="card-body p-0">
+      <div *ngIf="products.length === 0 && !loading" class="text-center p-5">
+        <i class="fas fa-search fa-3x text-muted mb-3"></i>
+        <p class="text-muted">Nenhum produto encontrado com os critérios especificados.</p>
+      </div>
+
+      <div class="table-responsive" *ngIf="products.length > 0">
+        <table class="table table-hover mb-0">
+          <thead class="table-light">
+          <tr>
+            <th>Código</th>
+            <th>Nome</th>
+            <th>Categoria</th>
+            <th>Preço</th>
+            <th>Stock</th>
+            <th>Status</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let product of products">
+            <td>
+              <code>{{ product.productCode }}</code>
+            </td>
+            <td>
+              <strong>{{ product.name }}</strong>
+              <br>
+              <small class="text-muted" *ngIf="product.description">
+                {{ product.description }}
+              </small>
+            </td>
+            <td>
+                <span class="badge bg-secondary">
+                  {{ getCategoryName(product.categoryId) }}
+                </span>
+            </td>
+            <td>
+              <strong>€{{ product.price | number:'1.2-2' }}</strong>
+            </td>
+            <td>
+                <span class="badge bg-info">
+                  {{ product.stockQuantity || 0 }}
+                </span>
+            </td>
+            <td>
+                <span [class]="getStockStatus(product).class">
+                  {{ getStockStatus(product).text }}
+                </span>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

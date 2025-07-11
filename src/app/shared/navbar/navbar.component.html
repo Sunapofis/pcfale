@@ -1,0 +1,33 @@
+export const NavbarHTML = `
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+  <div class="container-fluid">
+    <a class="navbar-brand" routerLink="/dashboard">
+      <i class="fas fa-boxes"></i>
+      Inventário
+    </a>
+
+    <button class="navbar-toggler" type="button" (click)="toggleMenu()">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="navbar-collapse" [class.show]="isMenuOpen">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/dashboard">Dashboard</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/products">Produtos</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/categories">Categorias</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/stock">Stock</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/transactions">Transações</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>

@@ -1,0 +1,160 @@
+<div class="category-list-container">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3">Gestão de Categorias</h1>
+    <a routerLink="/categories/new" class="btn btn-primary">
+      <i class="fas fa-plus"></i>
+      Nova Categoria
+    </a>
+  </div>
+
+  <!-- Debug button (remove in production) -->
+  <div class="mb-3">
+    <button class="btn btn-warning btn-sm" (click)="testCategoryApi()">
+      🧪 Test Category API
+    </button>
+    <small class="text-muted ms-2">Check browser console for API test results</small>
+  </div>
+
+  <!-- Filters -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-8 mb-3">
+          <label for="search" class="form-label">Pesquisar</label>
+          <input
+            type="text"
+            id="search"
+            class="form-control"
+            placeholder="Nome ou descrição da categoria..."
+            [(ngModel)]="searchTerm"
+            (input)="onSearchChange()">
+        </div>
+        <div class="col-md-3 mb-3 d-flex align-items-end">
+          <div class="form-check">
+            <input
+              type="checkbox"
+              id="activeOnly"
+              class="form-check-input"
+              [(ngModel)]="showActiveOnly"
+              (change)="onActiveFilterChange()">
+            <label class="form-check-label" for="activeOnly">
+              Apenas categorias ativas
+            </label>
+          </div>
+        </div>
+        <div class="col-md-1 mb-3 d-flex align-items-end">
+          <button class="btn btn-outline-secondary" (click)="loadCategories()">
+            <i class="fas fa-sync-alt"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="text-center p-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Carregando...</span>
+    </div>
+    <p class="mt-3">Carregando categorias...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error" class="alert alert-danger" role="alert">
+    <i class="fas fa-exclamation-triangle"></i>
+    {{ error }}
+  </div>
+
+  <!-- Categories Content -->
+  <div *ngIf="!loading && !error">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0">
+          Categorias ({{ filteredCategories.length }})
+        </h5>
+      </div>
+      <div class="card-body p-0">
+        <!-- Empty State -->
+        <div *ngIf="filteredCategories.length === 0" class="text-center p-5">
+          <i class="fas fa-tags fa-3x text-muted mb-3"></i>
+          <p class="text-muted">Nenhuma categoria encontrada.</p>
+          <a routerLink="/categories/new" class="btn btn-primary">
+            <i class="fas fa-plus"></i>
+            Criar primeira categoria
+          </a>
+        </div>
+
+        <!-- Categories Grid -->
+        <div class="row p-3" *ngIf="filteredCategories.length > 0">
+          <div class="col-md-6 col-lg-4 mb-3" *ngFor="let category of filteredCategories">
+            <div class="card category-card h-100">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <h6 class="card-title mb-0">{{ getCategoryDisplayName(category) }}</h6>
+                  <span class="badge" [class]="category.isActive !== false ? 'bg-success' : 'bg-secondary'">
+                    {{ category.isActive !== false ? 'Ativa' : 'Inativa' }}
+                  </span>
+                </div>
+
+                <!-- Category Description -->
+                <p class="card-text text-muted" *ngIf="category.description">
+                  {{ category.description }}
+                </p>
+                <p class="card-text text-muted" *ngIf="!category.description">
+                  <em>Sem descrição</em>
+                </p>
+
+                <!-- Category ID (for debugging) -->
+                <small class="text-muted d-block mb-2">ID: {{ category.id }}</small>
+
+                <!-- Action Buttons -->
+                <div class="d-flex justify-content-end gap-2 mt-3">
+                  <button
+                    class="btn btn-sm btn-outline-primary"
+                    (click)="editCategory(category)"
+                    title="Editar categoria">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                  <button
+                    class="btn btn-sm btn-outline-danger"
+                    (click)="deleteCategory(category)"
+                    title="Excluir categoria">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Debug Information (remove in production) -->
+  <div class="card mt-4" *ngIf="!loading">
+    <div class="card-header">
+      <h6 class="mb-0">🧪 Debug Information</h6>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-6">
+          <strong>Total Categories:</strong> {{ categories.length }}<br>
+          <strong>Filtered Categories:</strong> {{ filteredCategories.length }}<br>
+          <strong>Search Term:</strong> "{{ searchTerm }}"<br>
+          <strong>Show Active Only:</strong> {{ showActiveOnly }}
+        </div>
+        <div class="col-md-6">
+          <strong>Loading:</strong> {{ loading }}<br>
+          <strong>Error:</strong> {{ error || 'None' }}<br>
+          <strong>API URL:</strong> <small>{{getApiUrl()}}</small>
+        </div>
+      </div>
+
+      <!-- Raw Data Preview -->
+      <div class="mt-3" *ngIf="categories.length > 0">
+        <strong>Sample Category Data:</strong>
+        <pre class="bg-light p-2 rounded">{{ categories[0] | json }}</pre>
+      </div>
+    </div>
+  </div>
+</div>
