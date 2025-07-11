@@ -108,7 +108,6 @@
               <th>Código</th>
               <th>Nome</th>
               <th>Categoria</th>
-              <th>Preço</th>
               <th>Stock</th>
               <th>Status</th>
               <th>Ações</th>
@@ -130,9 +129,6 @@
                   <span class="badge bg-secondary">
                     {{ getCategoryName(getProductCategoryId(product)) }}
                   </span>
-              </td>
-              <td>
-                <strong>€{{ (product.price || 0) | number:'1.2-2' }}</strong>
               </td>
               <td>
                   <span class="badge bg-info">
@@ -165,35 +161,6 @@
             </tbody>
           </table>
         </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Debug Information (remove in production) -->
-  <div class="card mt-4" *ngIf="!loading">
-    <div class="card-header">
-      <h6 class="mb-0">🧪 Debug Information</h6>
-    </div>
-    <div class="card-body">
-      <div class="row">
-        <div class="col-md-6">
-          <strong>Total Products:</strong> {{ products.length }}<br>
-          <strong>Filtered Products:</strong> {{ filteredProducts.length }}<br>
-          <strong>Search Term:</strong> "{{ searchTerm }}"<br>
-          <strong>Selected Category:</strong> {{ selectedCategory || 'All' }}
-        </div>
-        <div class="col-md-6">
-          <strong>Loading:</strong> {{ loading }}<br>
-          <strong>Error:</strong> {{ error || 'None' }}<br>
-          <strong>Sort By:</strong> {{ sortBy }}<br>
-          <strong>Sort Order:</strong> {{ sortOrder }}
-        </div>
-      </div>
-
-      <!-- Raw Data Preview -->
-      <div class="mt-3" *ngIf="products.length > 0">
-        <strong>Sample Product Data:</strong>
-        <pre class="bg-light p-2 rounded">{{ products[0] | json }}</pre>
       </div>
     </div>
   </div>

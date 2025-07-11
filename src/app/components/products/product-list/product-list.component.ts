@@ -218,13 +218,4 @@ export class ProductListComponent implements OnInit {
       return 'Stock OK';
     }
   }
-
-  // Debug method to check what data we're receiving
-  debugProductData(): void {
-    console.log('🔍 Debug: Current products array:', this.products);
-    if (this.products.length > 0) {
-      console.log('🔍 Debug: Sample product:', this.products[0]);
-      console.log('🔍 Debug: Product fields:', Object.keys(this.products[0]));
-    }
-  }
 }

@@ -1,1 +1,164 @@
-<p>transaction-list works!</p>
+<div class="transaction-list-container">
+  <div class="header-section">
+    <h2>Lista de Transações</h2>
+  </div>
+
+  <!-- Filters Section -->
+  <div class="filters-section">
+    <div class="row">
+      <div class="col-md-4">
+        <div class="form-group">
+          <label for="search">Pesquisar:</label>
+          <input
+            type="text"
+            id="search"
+            class="form-control"
+            placeholder="Pesquisar por produto ou descrição..."
+            [(ngModel)]="searchTerm"
+            (input)="onSearchChange()"
+          />
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="form-group">
+          <label for="type-filter">Tipo:</label>
+          <select
+            id="type-filter"
+            class="form-control"
+            [(ngModel)]="selectedType"
+            (change)="onTypeChange()"
+          >
+            <option value="">Todos os tipos</option>
+            <option *ngFor="let type of transactionTypes" [value]="type.value">
+              {{ type.label }}
+            </option>
+          </select>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="form-group">
+          <label for="sort-by">Ordenar por:</label>
+          <select
+            id="sort-by"
+            class="form-control"
+            [(ngModel)]="sortBy"
+            (change)="onSortChange()"
+          >
+            <option value="date">Data</option>
+            <option value="product">Produto</option>
+            <option value="type">Tipo</option>
+            <option value="quantity">Quantidade</option>
+          </select>
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="form-group">
+          <label for="sort-order">Ordem:</label>
+          <select
+            id="sort-order"
+            class="form-control"
+            [(ngModel)]="sortOrder"
+            (change)="onSortChange()"
+          >
+            <option value="desc">Decrescente</option>
+            <option value="asc">Crescente</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="spinner-border text-primary" role="status">
+      <span class="sr-only">Carregando...</span>
+    </div>
+    <p>Carregando transações...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error" class="alert alert-danger" role="alert">
+    <i class="fas fa-exclamation-triangle"></i>
+    {{ error }}
+  </div>
+
+  <!-- Results Summary -->
+  <div *ngIf="!loading && !error" class="results-summary">
+    <p>
+      Mostrando {{ filteredTransactions.length }} de {{ transactions.length }} transações
+    </p>
+  </div>
+
+  <!-- Transactions Table -->
+  <div *ngIf="!loading && !error" class="table-container">
+    <div *ngIf="filteredTransactions.length === 0" class="no-results">
+      <i class="fas fa-search"></i>
+      <h4>Nenhuma transação encontrada</h4>
+      <p>Tente ajustar os filtros ou criar uma nova transação.</p>
+    </div>
+
+    <table *ngIf="filteredTransactions.length > 0" class="table table-striped table-hover">
+      <thead class="table-dark">
+      <tr>
+        <th>Data</th>
+        <th>Produto</th>
+        <th>Tipo</th>
+        <th>Quantidade</th>
+        <th>Descrição</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let transaction of filteredTransactions">
+        <td class="date-cell">
+          {{ formatDate(getTransactionDate(transaction)) }}
+        </td>
+        <td class="product-cell">
+          <strong>{{ getProductName(getTransactionProductId(transaction)) }}</strong>
+        </td>
+        <td class="type-cell">
+            <span [class]="getTransactionTypeClass(transaction)">
+              {{ getTransactionTypeName(transaction) }}
+            </span>
+        </td>
+        <td class="quantity-cell">
+            <span class="quantity-badge" [class.positive]="getTransactionQuantity(transaction) > 0" [class.negative]="getTransactionQuantity(transaction) < 0">
+              {{ getTransactionQuantity(transaction) > 0 ? '+' : '' }}{{ getTransactionQuantity(transaction) }}
+            </span>
+        </td>
+        <td class="description-cell">
+          {{ getTransactionDescription(transaction) || 'Sem descrição' }}
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Mobile View (Responsive Cards) -->
+  <div *ngIf="!loading && !error && filteredTransactions.length > 0" class="mobile-cards d-md-none">
+    <div *ngFor="let transaction of filteredTransactions" class="transaction-card">
+      <div class="card-header">
+        <div class="transaction-type">
+          <span [class]="getTransactionTypeClass(transaction)">
+            {{ getTransactionTypeName(transaction) }}
+          </span>
+        </div>
+        <div class="transaction-date">
+          {{ formatDate(getTransactionDate(transaction)) }}
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="product-info">
+          <strong>{{ getProductName(getTransactionProductId(transaction)) }}</strong>
+        </div>
+        <div class="quantity-info">
+          <span class="quantity-badge" [class.positive]="getTransactionQuantity(transaction) > 0" [class.negative]="getTransactionQuantity(transaction) < 0">
+            {{ getTransactionQuantity(transaction) > 0 ? '+' : '' }}{{ getTransactionQuantity(transaction) }}
+          </span>
+        </div>
+        <div class="description-info" *ngIf="getTransactionDescription(transaction)">
+          {{ getTransactionDescription(transaction) }}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
