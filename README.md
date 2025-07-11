@@ -1,3 +1,6 @@
+Projecto Prog 3 - João Salteiro-27803 / Diogo Coelho-27621
+
+
 # InventoryFrontend
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.15.
