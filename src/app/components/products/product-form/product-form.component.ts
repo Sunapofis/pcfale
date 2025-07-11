@@ -27,14 +27,13 @@ export class ProductFormComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router
   ) {
+    // Form only includes fields that exist in backend
     this.productForm = this.fb.group({
       nome: ['', [Validators.required, Validators.minLength(2)]],
-      description: [''],
-      price: [0, [Validators.required, Validators.min(0.01)]],
       categoriaId: ['', Validators.required],
-      codigoProduto: ['', [Validators.required, Validators.minLength(3)]],
       stock: [0, [Validators.required, Validators.min(0)]],
-      minimumStock: [0, [Validators.required, Validators.min(0)]]
+      codigoProduto: ['', [Validators.required, Validators.minLength(3)]]
+      // NOTE: Not including price, description, minimumStock since backend doesn't have them
     });
   }
 
@@ -69,15 +68,12 @@ export class ProductFormComponent implements OnInit {
     this.loading = true;
     this.productService.getProduct(this.productId).subscribe({
       next: (product) => {
-        // Map the product data to form values
+        // Map to form values (only backend fields)
         this.productForm.patchValue({
           nome: product.name || product.nome,
-          description: product.description || '',
-          price: product.price || 0,
           categoriaId: product.categoryId || product.categoriaId,
-          codigoProduto: product.productCode || product.codigoProduto,
           stock: product.stockQuantity || product.stock,
-          minimumStock: product.minimumStock || 5
+          codigoProduto: product.productCode || product.codigoProduto
         });
         this.loading = false;
       },
@@ -95,53 +91,37 @@ export class ProductFormComponent implements OnInit {
       this.error = null;
       this.success = null;
 
-      // Create product data matching backend structure
+      // Create product data with only backend fields
       const productData: Product = {
         nome: this.productForm.value.nome,
         categoriaId: this.productForm.value.categoriaId,
         stock: this.productForm.value.stock,
         codigoProduto: this.productForm.value.codigoProduto,
-        // Also include frontend compatibility fields
+        // Frontend compatibility
         name: this.productForm.value.nome,
         categoryId: this.productForm.value.categoriaId,
         stockQuantity: this.productForm.value.stock,
-        productCode: this.productForm.value.codigoProduto,
-        price: this.productForm.value.price,
-        minimumStock: this.productForm.value.minimumStock,
-        description: this.productForm.value.description
+        productCode: this.productForm.value.codigoProduto
       };
 
-      if (this.isEditMode) {
-        this.productService.updateProduct(this.productId!, productData).subscribe({
-          next: () => {
-            this.success = 'Produto atualizado com sucesso!';
-            this.loading = false;
-            setTimeout(() => {
-              this.router.navigate(['/products']);
-            }, 1500);
-          },
-          error: (err) => {
-            console.error('Error updating product:', err);
-            this.error = 'Erro ao atualizar produto';
-            this.loading = false;
-          }
-        });
-      } else {
-        this.productService.createProduct(productData).subscribe({
-          next: () => {
-            this.success = 'Produto criado com sucesso!';
-            this.loading = false;
-            setTimeout(() => {
-              this.router.navigate(['/products']);
-            }, 1500);
-          },
-          error: (err) => {
-            console.error('Error creating product:', err);
-            this.error = 'Erro ao criar produto';
-            this.loading = false;
-          }
-        });
-      }
+      const request = this.isEditMode
+        ? this.productService.updateProduct(this.productId!, productData)
+        : this.productService.createProduct(productData);
+
+      request.subscribe({
+        next: () => {
+          this.success = `Produto ${this.isEditMode ? 'atualizado' : 'criado'} com sucesso!`;
+          this.loading = false;
+          setTimeout(() => {
+            this.router.navigate(['/products']);
+          }, 1500);
+        },
+        error: (err) => {
+          console.error('Error saving product:', err);
+          this.error = 'Erro ao salvar produto';
+          this.loading = false;
+        }
+      });
     } else {
       this.markFormGroupTouched();
     }

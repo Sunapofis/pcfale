@@ -1,9 +1,10 @@
 export interface Category {
+  // BACKEND FIELDS (exactly as they exist in your Java model)
   id?: string;
-  nome: string;                    // matches backend "nome"
+  nome: string;                    // ✅ exists in backend
 
-  // Frontend-only properties for compatibility
+  // FRONTEND-ONLY FIELDS (computed/defaulted)
   name?: string;                   // computed from nome
-  description?: string;            // you might need to add this to backend
-  isActive?: boolean;              // you might need to add this to backend
+  description?: string;            // default to empty (backend doesn't have this)
+  isActive?: boolean;              // default to true (backend doesn't have this)
 }

@@ -39,14 +39,14 @@ export class ProductListComponent implements OnInit {
 
     this.productService.getProducts().subscribe({
       next: (products) => {
-        console.log('✅ ProductList: Products loaded from API:', products);
+        console.log('✅ ProductList: Products loaded and mapped:', products);
         this.products = products;
         this.filteredProducts = products;
         this.loading = false;
         this.applyFilters();
       },
       error: (err) => {
-        console.error('❌ ProductList: Error loading products from API:', err);
+        console.error('❌ ProductList: Error loading products:', err);
         this.error = 'Erro ao carregar produtos: ' + err;
         this.loading = false;
       }
@@ -56,11 +56,11 @@ export class ProductListComponent implements OnInit {
   loadCategories(): void {
     this.categoryService.getCategories().subscribe({
       next: (categories) => {
-        console.log('✅ ProductList: Categories loaded from API:', categories);
+        console.log('✅ ProductList: Categories loaded:', categories);
         this.categories = categories;
       },
       error: (err) => {
-        console.error('❌ ProductList: Error loading categories from API:', err);
+        console.error('❌ ProductList: Error loading categories:', err);
       }
     });
   }
@@ -95,8 +95,8 @@ export class ProductListComponent implements OnInit {
           valueB = this.getProductDisplayName(b).toLowerCase();
           break;
         case 'price':
-          valueA = a.price || 0;
-          valueB = b.price || 0;
+          valueA = this.getProductPrice(a);
+          valueB = this.getProductPrice(b);
           break;
         case 'stock':
           valueA = this.getProductStock(a);
@@ -142,11 +142,11 @@ export class ProductListComponent implements OnInit {
     if (confirm(`Tem certeza que deseja excluir o produto "${productName}"?`)) {
       this.productService.deleteProduct(product.id!).subscribe({
         next: () => {
-          console.log('✅ ProductList: Product deleted successfully');
+          console.log('✅ Product deleted successfully');
           this.loadProducts();
         },
         error: (err) => {
-          console.error('❌ ProductList: Error deleting product:', err);
+          console.error('❌ Error deleting product:', err);
           alert('Erro ao excluir produto: ' + err);
         }
       });
@@ -154,7 +154,7 @@ export class ProductListComponent implements OnInit {
   }
 
   // ===================================================================
-  // SAFE GETTER METHODS FOR PRODUCTS
+  // SAFE GETTER METHODS (handle current backend structure)
   // ===================================================================
 
   getProductDisplayName(product: Product): string {
@@ -169,33 +169,33 @@ export class ProductListComponent implements OnInit {
     return product.stockQuantity || product.stock || 0;
   }
 
+  getProductPrice(product: Product): number {
+    // Since backend doesn't have price, always return 0 and show "Not defined"
+    return product.price || 0;
+  }
+
   getProductCategoryId(product: Product): string {
     return product.categoryId || product.categoriaId || '';
   }
 
-  // ===================================================================
-  // SAFE GETTER METHODS FOR CATEGORIES
-  // ===================================================================
+  getProductCategoryName(product: Product): string {
+    // Use the joined category name from mapping
+    return product.categoryName || 'Categoria não encontrada';
+  }
 
-  // ADDED: Missing method that HTML template was looking for
   getCategoryDisplayName(category: Category): string {
     return category.name || category.nome || 'Sem nome';
   }
 
-  // Fixed: Added null check for categoryId
   getCategoryName(categoryId: string | undefined): string {
     if (!categoryId) return 'Sem Categoria';
     const category = this.categories.find(c => c.id === categoryId);
-    return category ? this.getCategoryDisplayName(category) : 'Sem Categoria';
+    return category ? this.getCategoryDisplayName(category) : 'Categoria não encontrada';
   }
-
-  // ===================================================================
-  // STOCK STATUS METHODS (Fixed to accept single Product parameter)
-  // ===================================================================
 
   getStockStatusClass(product: Product): string {
     const stockQuantity = this.getProductStock(product);
-    const minimumStock = product.minimumStock || 5;
+    const minimumStock = product.minimumStock || 5; // Default minimum
 
     if (stockQuantity <= 0) {
       return 'badge bg-danger';
@@ -208,7 +208,7 @@ export class ProductListComponent implements OnInit {
 
   getStockStatusText(product: Product): string {
     const stockQuantity = this.getProductStock(product);
-    const minimumStock = product.minimumStock || 5;
+    const minimumStock = product.minimumStock || 5; // Default minimum
 
     if (stockQuantity <= 0) {
       return 'Sem Stock';
@@ -219,40 +219,12 @@ export class ProductListComponent implements OnInit {
     }
   }
 
-  // ===================================================================
-  // DEBUG METHODS (optional - for troubleshooting)
-  // ===================================================================
-
-  testProductApi(): void {
-    console.log('🧪 ProductList: Testing product API...');
-
-    // Direct fetch test
-    fetch('https://inventario-backend-20250708203346047.azurewebsites.net/api/produtos')
-      .then(r => r.json())
-      .then(data => {
-        console.log('✅ ProductList: Direct fetch success:', data);
-        console.log('📊 ProductList: Products count:', data.length);
-        if (data.length > 0) {
-          console.log('📋 ProductList: Sample product:', data[0]);
-          console.log('🏷️ Available fields:', Object.keys(data[0]));
-        }
-      })
-      .catch(err => {
-        console.error('❌ ProductList: Direct fetch failed:', err);
-      });
-
-    // Angular service test
-    this.productService.getProducts().subscribe({
-      next: (data) => {
-        console.log('✅ ProductList: Angular service success:', data);
-      },
-      error: (err) => {
-        console.error('❌ ProductList: Angular service failed:', err);
-      }
-    });
-  }
-
-  getApiUrl(): string {
-    return 'https://inventario-backend-20250708203346047.azurewebsites.net/api';
+  // Debug method to check what data we're receiving
+  debugProductData(): void {
+    console.log('🔍 Debug: Current products array:', this.products);
+    if (this.products.length > 0) {
+      console.log('🔍 Debug: Sample product:', this.products[0]);
+      console.log('🔍 Debug: Product fields:', Object.keys(this.products[0]));
+    }
   }
 }

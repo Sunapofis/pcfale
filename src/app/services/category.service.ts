@@ -11,27 +11,27 @@ export class CategoryService {
   constructor(private apiService: ApiService) { }
 
   getCategories(): Observable<Category[]> {
-    return this.apiService.get<Category[]>('categorias').pipe(
+    return this.apiService.get<any[]>('categorias').pipe(
       map(categorias => categorias.map(categoria => this.mapCategoryFromBackend(categoria)))
     );
   }
 
   getCategory(id: string): Observable<Category> {
-    return this.apiService.get<Category>(`categorias/${id}`).pipe(
+    return this.apiService.get<any>(`categorias/${id}`).pipe(
       map(categoria => this.mapCategoryFromBackend(categoria))
     );
   }
 
   createCategory(category: Category): Observable<Category> {
     const backendCategory = this.mapCategoryToBackend(category);
-    return this.apiService.post<Category>('categorias', backendCategory).pipe(
+    return this.apiService.post<any>('categorias', backendCategory).pipe(
       map(categoria => this.mapCategoryFromBackend(categoria))
     );
   }
 
   updateCategory(id: string, category: Category): Observable<Category> {
     const backendCategory = this.mapCategoryToBackend(category);
-    return this.apiService.put<Category>(`categorias/${id}`, backendCategory).pipe(
+    return this.apiService.put<any>(`categorias/${id}`, backendCategory).pipe(
       map(categoria => this.mapCategoryFromBackend(categoria))
     );
   }
@@ -43,21 +43,23 @@ export class CategoryService {
   // Map backend data to frontend format
   private mapCategoryFromBackend(categoria: any): Category {
     return {
+      // Backend fields
       id: categoria.id,
       nome: categoria.nome,
 
-      // Frontend compatibility properties
+      // Frontend compatibility fields
       name: categoria.nome,
-      description: categoria.description || '', // Default if not in backend
-      isActive: categoria.isActive !== false    // Default to true if not in backend
+      description: '',                             // Default since backend doesn't have description
+      isActive: true                              // Default since backend doesn't have isActive
     };
   }
 
-  // Map frontend data to backend format
+  // Map frontend data to backend format (only send fields that exist in backend)
   private mapCategoryToBackend(category: Category): any {
     return {
       id: category.id,
       nome: category.name || category.nome
+      // NOTE: Not sending description, isActive since backend doesn't have them
     };
   }
 }
